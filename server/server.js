@@ -6,6 +6,9 @@ const http = require('http');
 const express = require('express');
 //Se importa el módulo de socket-io.
 const socketIO = require('socket.io');
+//Se importa el módulo para generar el mensaje.
+const {generateMessage} = require('./utils/message');
+
 //Se obtiene el directorio raiz del proyecto mas la carpeta public 
 const publicPath = path.join(__dirname, '../public');
 //Se configura el puerto para desarrollo y producción con Heroku.
@@ -45,26 +48,24 @@ io.on('connection', (socket) => {
 		console.log('Creando Email');
 	});
 	*/
-	socket.emit('newMessage', {
-		from: 'Administrador',
-		text: 'Bienvenido al chat',
-	});
 
+	//Se muestra el mensaje de bienvenida al chat del usuario.
+	socket.emit('newMessage', generateMessage('Administrador', 'Bienvenido al chat de la aplicación'));
+	//Se notifica que se acaba de unir un nuevo usuario al chat.
+	socket.broadcast.emit('newMessage', generateMessage('Administrador', 'Se unió un nuevo usuario'));
+	/*
 	socket.broadcast.emit('newMessage', {
 		from: 'Administrador',
 		text: 'Un nuevo usuario se ha unido al chat',
 		createdAt: new Date().getTime()		
 	});
+	*/
 
 	//Evento del socket para crear un mensaje.
 	socket.on('createMessage', (message) => {
 		console.log('Creando Mensaje...', message);
 		
-		io.emit('newMessage', {
-			from: message.from,
-			text: message.text,
-			createdAt: new Date().getTime()
-		});
+		io.emit('newMessage', generateMessage(message.from, message.text));
 		
 		/*
 		socket.broadcast.emit('newMessage', {
