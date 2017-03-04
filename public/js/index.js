@@ -58,12 +58,13 @@ socket.emit('createMessage', {
 $('#message-form').on('submit', function(e) {
 	e.preventDefault();
 
+	var messageTextbox = $('[name=message]');
 
 	socket.emit('createMessage', {
 		from: 'Usuario',
-		text: $('[name=message]').val()
+		text: messageTextbox.val()
 	}, function() {
-
+		messageTextbox.val('');
 	});
 });
 
@@ -74,12 +75,16 @@ locationButton.on('click', function() {
 		return alert('La geolocalización no es soportada por tu navegador');
 	}
 
+	locationButton.attr('disabled', 'disabled').text('Enviando ubicación...');
+
 	navigator.geolocation.getCurrentPosition(function (position) {
+		locationButton.removeAttr('disabled').text('Enviar ubicación');
 		socket.emit('createLocationMessage', {
 			latitude: position.coords.latitude,
 			longitude: position.coords.longitude
 		});
 	}, function () {
+		locationButton.removeAttr('disabled').text('Enviar ubicación');
 		alert('No se puede consultar la ubicación');
 	});
 });
