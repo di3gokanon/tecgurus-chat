@@ -46,6 +46,10 @@ io.on('connection', (socket) => {
 	//Evento del socket para crear un mensaje.
 	socket.on('createMessage', (message) => {
 		console.log('Creando Mensaje...', message);
+		io.emit('newMessage', {
+			from: message.from,
+			text: message.text
+		})
 	});	
 
 	socket.on('disconnect', () => {

@@ -10,10 +10,12 @@ socket.on('connect', function () {
 	});
 	*/
 
+	/*
 	socket.emit('createMessage', {
 		from: 'tecgurus',
 		text: 'Curso de NodeJS con sockets'
 	});
+	*/
 });
 
 socket.on('disconnect', function () {
