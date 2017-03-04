@@ -29,4 +29,30 @@ socket.on('newEmail', function (email) {
 */
 socket.on('newMessage', function (message) {
 	console.log('Nuevo mensaje...', message);
+
+	var li = $('<li></li>');
+	li.text(`${message.from}: ${message.text}`);
+
+	$('#messages').append(li);
+});
+
+/*
+socket.emit('createMessage', {
+	from: 'Gerardo',
+	text: 'Hola'
+}, function (data) {
+	console.log('Listo!', data);
+});
+*/
+
+$('#message-form').on('submit', function(e) {
+	e.preventDefault();
+
+
+	socket.emit('createMessage', {
+		from: 'Usuario',
+		text: $('[name=message]').val()
+	}, function() {
+
+	});
 });
