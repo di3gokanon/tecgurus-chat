@@ -24,11 +24,14 @@ app.use(express.static(publicPath));
 io.on('connection', (socket) => {
 	console.log(`Nueva conexión de usuario.`);
 
+	/*
 	socket.emit('newMessage', {
 		from: 'Diego',
 		text: 'Nuevo mensaje para TecGurus',
 		createdAt: 123123
 	});
+	*/
+
 	/*
 	socket.emit('newEmail', {
 		from: 'dpaniagua@tecgurus.net',
@@ -42,14 +45,34 @@ io.on('connection', (socket) => {
 		console.log('Creando Email');
 	});
 	*/
+	socket.emit('newMessage', {
+		from: 'Administrador',
+		text: 'Bienvenido al chat',
+	});
+
+	socket.broadcast.emit('newMessage', {
+		from: 'Administrador',
+		text: 'Un nuevo usuario se ha unido al chat',
+		createdAt: new Date().getTime()		
+	});
 
 	//Evento del socket para crear un mensaje.
 	socket.on('createMessage', (message) => {
 		console.log('Creando Mensaje...', message);
+		
 		io.emit('newMessage', {
 			from: message.from,
-			text: message.text
-		})
+			text: message.text,
+			createdAt: new Date().getTime()
+		});
+		
+		/*
+		socket.broadcast.emit('newMessage', {
+			from: message.from,
+			text: message.text,
+			createdAt: new Date().getTime()
+		});
+		*/
 	});	
 
 	socket.on('disconnect', () => {
