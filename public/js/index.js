@@ -36,6 +36,16 @@ socket.on('newMessage', function (message) {
 	$('#messages').append(li);
 });
 
+socket.on('newLocationMessage', function(message) {
+	var li = $('<li></li>');
+
+	var a = $('<a target="_blank">Mi ubicaci&oacute;n actual</a>');
+
+	li.text(`${message.from}: `);
+	a.attr('href', message.url);
+	li.append(a);
+	$('#messages').append(li);
+});
 /*
 socket.emit('createMessage', {
 	from: 'Gerardo',
@@ -54,5 +64,22 @@ $('#message-form').on('submit', function(e) {
 		text: $('[name=message]').val()
 	}, function() {
 
+	});
+});
+
+var locationButton = $('#send-location');
+
+locationButton.on('click', function() {
+	if(!navigator.geolocation) {
+		return alert('La geolocalización no es soportada por tu navegador');
+	}
+
+	navigator.geolocation.getCurrentPosition(function (position) {
+		socket.emit('createLocationMessage', {
+			latitude: position.coords.latitude,
+			longitude: position.coords.longitude
+		});
+	}, function () {
+		alert('No se puede consultar la ubicación');
 	});
 });

@@ -7,7 +7,7 @@ const express = require('express');
 //Se importa el módulo de socket-io.
 const socketIO = require('socket.io');
 //Se importa el módulo para generar el mensaje.
-const {generateMessage} = require('./utils/message');
+const {generateMessage, generateLocationMessage} = require('./utils/message');
 
 //Se obtiene el directorio raiz del proyecto mas la carpeta public 
 const publicPath = path.join(__dirname, '../public');
@@ -67,14 +67,11 @@ io.on('connection', (socket) => {
 		
 		io.emit('newMessage', generateMessage(message.from, message.text));
 		callback('Esto es desde el servidor');
-		/*
-		socket.broadcast.emit('newMessage', {
-			from: message.from,
-			text: message.text,
-			createdAt: new Date().getTime()
-		});
-		*/
 	});	
+
+	socket.on('createLocationMessage', (coords) => {
+		io.emit('newLocationMessage', generateLocationMessage('Administrador', coords.latitude, coords.longitude));
+	});
 
 	socket.on('disconnect', () => {
 		console.log('EL usuario se ha desconectado');
