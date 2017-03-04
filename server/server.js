@@ -24,6 +24,30 @@ app.use(express.static(publicPath));
 io.on('connection', (socket) => {
 	console.log(`Nueva conexión de usuario.`);
 
+	socket.emit('newMessage', {
+		from: 'Diego',
+		text: 'Nuevo mensaje para TecGurus',
+		createdAt: 123123
+	});
+	/*
+	socket.emit('newEmail', {
+		from: 'dpaniagua@tecgurus.net',
+		text: 'Hola Diego',
+		createAt: 123
+	});
+	*/
+
+	/*
+	socket.on('createEmail', (newEmail) => {
+		console.log('Creando Email');
+	});
+	*/
+
+	//Evento del socket para crear un mensaje.
+	socket.on('createMessage', (message) => {
+		console.log('Creando Mensaje...', message);
+	});	
+
 	socket.on('disconnect', () => {
 		console.log('EL usuario se ha desconectado');
 	});	

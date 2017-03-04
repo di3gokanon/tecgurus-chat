@@ -8,17 +8,7 @@
 	<p>Bienvenido al chat de TecGurus</p>
 
 	<script type="text/javascript" src="/socket.io/socket.io.js"></script>
-	<script type="text/javascript">
-		var socket = io();
-
-		socket.on('connect', () => {
-			console.log('Conectándose...');
-		});
-
-		socket.on('disconnect', () => {
-			console.log('Desconectándose del servidor');
-		});
-	</script>
+	<script type="text/javascript" src="/js/index.js"></script>
 </body>
 	
 </html>
