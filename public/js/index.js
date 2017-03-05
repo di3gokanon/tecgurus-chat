@@ -29,24 +29,27 @@ socket.on('newEmail', function (email) {
 */
 socket.on('newMessage', function (message) {
 	var formattedTime = moment(message.createdAt).format('h:mm a');
-	console.log('Nuevo mensaje...', message);
+	var template = $('#message-template').html();
+	var html = Mustache.render(template, {
+		text: message.text,
+		from: message.from,
+		createdAt: formattedTime
+	});
 
-	var li = $('<li></li>');
-	li.text(`${message.from} ${formattedTime}: ${message.text}`);
-
-	$('#messages').append(li);
+	$('#messages').append(html);
 });
 
 socket.on('newLocationMessage', function(message) {
 	var formattedTime = moment(message.createdAt).format('h:mm a');
-	var li = $('<li></li>');
+	var template = $('#location-message-template').html();
 
-	var a = $('<a target="_blank">Mi ubicaci&oacute;n actual</a>');
+	var html = Mustache.render(template, {
+		from: message.from,
+		url: message.url,
+		createdAt: formattedTime
+	});
 
-	li.text(`${message.from} ${formattedTime}: `);
-	a.attr('href', message.url);
-	li.append(a);
-	$('#messages').append(li);
+	$('#messages').append(html);
 });
 /*
 socket.emit('createMessage', {
