@@ -69,10 +69,12 @@ io.on('connection', (socket) => {
 		callback();
 	});	
 
+	//Socket que crea un mensaje para mandar la ubicación de un usuario.
 	socket.on('createLocationMessage', (coords) => {
 		io.emit('newLocationMessage', generateLocationMessage('Administrador', coords.latitude, coords.longitude));
 	});
 
+	//Socket que se ejecuta cuando el usuario cierra el chat.
 	socket.on('disconnect', () => {
 		console.log('EL usuario se ha desconectado');
 	});	
