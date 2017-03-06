@@ -8,7 +8,10 @@ const express = require('express');
 const socketIO = require('socket.io');
 //Se importa el módulo para generar el mensaje.
 const {generateMessage, generateLocationMessage} = require('./utils/message');
-
+//Se importa el archivo para validar nombre y sala de chat.
+const {isRealString} = require('./utils/validation');
+//Se importa el modelo de Usuario.
+const {Usuario} = require('./utils/users');
 //Se obtiene el directorio raiz del proyecto mas la carpeta public 
 const publicPath = path.join(__dirname, '../public');
 //Se configura el puerto para desarrollo y producción con Heroku.
@@ -20,6 +23,8 @@ var app = express();
 var server = http.createServer(app);
 
 var io = socketIO(server);
+//Se crea el objeto de Usuario.
+var users = new Usuario();
 
 //Se utiliza como ruta path del proyecto la página inicial index.html en el directorio public.
 app.use(express.static(publicPath));
@@ -27,39 +32,24 @@ app.use(express.static(publicPath));
 io.on('connection', (socket) => {
 	console.log(`Nueva conexión de usuario.`);
 
-	/*
-	socket.emit('newMessage', {
-		from: 'Diego',
-		text: 'Nuevo mensaje para TecGurus',
-		createdAt: 123123
-	});
-	*/
+	socket.on('join', (params, callback) => {
+		if(!isRealString(params.name) || !isRealString(params.room)) {
+			return callback('El nombre del usuario y el nombre del cuarto son requeridos');
+		}
 
-	/*
-	socket.emit('newEmail', {
-		from: 'dpaniagua@tecgurus.net',
-		text: 'Hola Diego',
-		createAt: 123
-	});
-	*/
+		//Socket que permite al usuario unirse a una sala de chat.
+		socket.join(params.room);
+		users.removeUser(socket.id);
+		users.addUser(socket.id, params.name, params.room);
 
-	/*
-	socket.on('createEmail', (newEmail) => {
-		console.log('Creando Email');
-	});
-	*/
+		io.to(params.room).emit('updateUserList', users.getUserList(params.room));
 
-	//Se muestra el mensaje de bienvenida al chat del usuario.
-	socket.emit('newMessage', generateMessage('Administrador', 'Bienvenido al chat de la aplicación'));
-	//Se notifica que se acaba de unir un nuevo usuario al chat.
-	socket.broadcast.emit('newMessage', generateMessage('Administrador', 'Se unió un nuevo usuario'));
-	/*
-	socket.broadcast.emit('newMessage', {
-		from: 'Administrador',
-		text: 'Un nuevo usuario se ha unido al chat',
-		createdAt: new Date().getTime()		
+		//Se muestra el mensaje de bienvenida al chat del usuario.
+		socket.emit('newMessage', generateMessage('Administrador', 'Bienvenido al chat de la aplicación'));
+		//Se notifica que se acaba de unir un nuevo usuario al chat.
+		socket.broadcast.to(params.room).emit('newMessage', generateMessage('Administrador', `${params.name} se ha unido`));
+		callback();
 	});
-	*/
 
 	//Evento del socket para crear un mensaje.
 	socket.on('createMessage', (message, callback) => {
@@ -76,7 +66,12 @@ io.on('connection', (socket) => {
 
 	//Socket que se ejecuta cuando el usuario cierra el chat.
 	socket.on('disconnect', () => {
-		console.log('EL usuario se ha desconectado');
+		var user = users.removeUser(socket.id);
+
+		if(user) {
+			io.to(user.room).emit('updateUserList', users.getUserList(user.room));
+			io.to(user.room).emit('newMessage', generateMessage('Administrador', `${user.name} ha abandonado la sala.`));
+		}
 	});	
 });
 
